@@ -1,3 +1,5 @@
+<div align="center">
+
 # 🎩 Sherlock Deduction Engine
 
 **A Victorian crime investigation game built as a full-stack web application.**
@@ -10,24 +12,17 @@
 
 *London, 1888. Three cases. One killer. No second chances.*
 
----
+**[▶ Play now](https://sherlock-deduction-engine.vercel.app)** · **[API Docs](https://sherlock-api.onrender.com/docs)**
 
-## ▶ Live Demo
-
-- 🎮 **Play now:** https://sherlock-deduction-engine.vercel.app  
-- 📘 **API Docs:** https://sherlock-api.onrender.com/docs  
+</div>
 
 ---
 
 ## What is this?
 
-Sherlock Deduction Engine is a browser-based deduction game set in Victorian London.
+A browser-based deduction game set in Victorian London. The player investigates crime scenes, examines physical evidence, interrogates suspects, and makes a formal accusation — knowing that a wrong choice closes the case permanently.
 
-The player investigates crime scenes, examines physical evidence, interrogates suspects, and makes a formal accusation — knowing that a wrong choice closes the case permanently.
-
-The core of the project is a **rule-based contradiction engine**. The backend evaluates each suspect's declared alibi against physical evidence and testimony, detecting logical inconsistencies that guide the player toward the truth.
-
-The `guilty` field is never exposed to the client.
+The core of the project is a **rule-based contradiction engine**: the backend evaluates each suspect's declared alibi against physical evidence and witness testimony, detecting logical inconsistencies that guide the player toward the truth. The `guilty` field is never exposed to the client.
 
 ---
 
@@ -35,75 +30,58 @@ The `guilty` field is never exposed to the client.
 
 | # | Title | Setting | Suspects | Difficulty |
 |---|-------|---------|----------|------------|
-| 1 | **Sombras en Whitechapel** | Whitechapel, 1888 | 4 | Moderate |
-| 2 | **La Bestia de Mayfair** | Mayfair, 1889 | 5 | Hard |
-| 3 | **El Veneno del Támesis** | Southwark, 1889 | 5 | Expert |
+| 1 | **Shadows over Whitechapel** | Whitechapel, 1888 | 4 | Moderate |
+| 2 | **The Beast of Mayfair** | Mayfair, 1889 | 5 | Hard |
+| 3 | **The Thames Poison** | Southwark, 1889 | 5 | Expert |
 
-Cases unlock sequentially — the next case becomes available only after solving the current one.
-
-Progress is persisted in `localStorage`.
+Cases unlock sequentially — the next case becomes available only after solving the current one. Progress is persisted in `localStorage`.
 
 ---
 
 ## Tech Stack
 
 ### Backend
-- FastAPI with clean architecture (models → repositories → services → routes)
-- SQLAlchemy ORM — SQLite locally, PostgreSQL in production
-- Pydantic schemas with separate public/internal models
-- Alembic for database migrations
+- **FastAPI** with clean architecture: models → repositories → services → routes
+- **SQLAlchemy ORM** — SQLite locally, PostgreSQL in production
+- **Pydantic schemas** with separate public/internal models (the `guilty` flag is never serialized to the client)
+- **Alembic** for database migrations
 
 ### Frontend
-- React 18 + Vite
-- Zero UI libraries — all styles written from scratch
-- Web Audio API for procedurally generated Victorian ambient music:
-  - Synthesized strings
-  - Piano
-  - Cello
-  - Rain and wind layers
-  - Westminster-style bell patterns
-- Music theme changes dynamically based on game state (interrogation triggers tension mode, win triggers resolution mode)
-
-No external audio files. No UI component libraries.
+- **React 18 + Vite**
+- Zero UI libraries — all styles written from scratch with CSS-in-JS
+- **Web Audio API** for procedurally generated Victorian ambient music: synthesized strings, piano, cello, rain, wind, and Westminster bell patterns — no audio files, no external dependencies
+- Music theme changes dynamically based on game state (interrogation triggers tension mode, victory triggers resolution mode)
 
 ---
 
 ## Project Structure
 
-```text
+```
 sherlock/
 ├── backend/
-│   ├── main.py
+│   ├── main.py                      ← FastAPI app + CORS + lifespan startup
 │   ├── requirements.txt
 │   └── app/
 │       ├── core/
-│       │   ├── config.py
-│       │   └── database.py
-│       ├── models/
-│       │   └── models.py
-│       ├── schemas/
-│       │   └── schemas.py
-│       ├── services/
-│       │   └── game_logic.py
-│       ├── repositories/
-│       │   └── case_repository.py
-│       └── api/
-│           └── routes.py
+│       │   ├── config.py            ← Pydantic settings + env vars
+│       │   └── database.py          ← Engine setup + seed data
+│       ├── models/models.py         ← Case, Suspect, Clue, GameSession
+│       ├── schemas/schemas.py       ← Public vs internal Pydantic schemas
+│       ├── services/game_logic.py   ← Contradiction engine + accusation eval
+│       ├── repositories/            ← Data access layer
+│       └── api/routes.py            ← All endpoints
 │
 └── frontend/
     └── src/
-        ├── App.jsx
-        ├── data/
-        │   └── cases.js
-        ├── hooks/
-        │   └── useSoundManager.js
-        ├── services/
-        │   └── api.js
+        ├── App.jsx                  ← Client-side router
+        ├── data/cases.js            ← Case data + unlock logic
+        ├── hooks/useSoundManager.js ← Web Audio engine
+        ├── services/api.js          ← Fetch wrapper
         └── pages/
-            ├── HomePage.jsx
-            ├── CasesPage.jsx
-            ├── GamePage.jsx
-            └── ResultPage.jsx
+            ├── HomePage.jsx         ← Cinematic landing screen
+            ├── CasesPage.jsx        ← Case selection with lock states
+            ├── GamePage.jsx         ← Investigation interface
+            └── ResultPage.jsx       ← Resolution screen
 ```
 
 ---
@@ -112,16 +90,16 @@ sherlock/
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/v1/cases` | List all cases |
-| GET | `/api/v1/cases/{id}` | Full case detail (no guilty field) |
-| GET | `/api/v1/cases/{id}/contradictions` | Contradiction engine output |
-| POST | `/api/v1/sessions` | Start a new game session |
-| GET | `/api/v1/sessions/{id}` | Current session state |
-| POST | `/api/v1/sessions/{id}/clues/{clue_id}` | Mark clue as examined |
-| POST | `/api/v1/sessions/{id}/suspects/{suspect_id}` | Mark suspect as interviewed |
-| POST | `/api/v1/sessions/{id}/accuse` | Submit accusation → returns win/lose |
+| `GET` | `/api/v1/cases` | List all cases |
+| `GET` | `/api/v1/cases/{id}` | Full case detail (no `guilty` field) |
+| `GET` | `/api/v1/cases/{id}/contradictions` | Contradiction engine output |
+| `POST` | `/api/v1/sessions` | Start a new game session |
+| `GET` | `/api/v1/sessions/{id}` | Current session state |
+| `POST` | `/api/v1/sessions/{id}/clues/{clue_id}` | Mark clue as examined |
+| `POST` | `/api/v1/sessions/{id}/suspects/{suspect_id}` | Mark suspect as interviewed |
+| `POST` | `/api/v1/sessions/{id}/accuse` | Submit accusation → returns win/lose |
 
-Interactive documentation is available at `/docs` when running locally.
+Interactive docs available at `/docs` when running locally.
 
 ---
 
@@ -132,15 +110,13 @@ Interactive documentation is available at `/docs` when running locally.
 ```bash
 cd backend
 python -m venv venv
-venv\Scripts\activate   # Windows
+venv\Scripts\activate       # Windows
+# source venv/bin/activate  # macOS / Linux
 pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
-API available at:  
-http://localhost:8000
-
----
+→ API running at `http://localhost:8000`
 
 ### Frontend
 
@@ -150,8 +126,7 @@ npm install
 npm run dev
 ```
 
-App available at:  
-http://localhost:5173
+→ App running at `http://localhost:5173`
 
 The backend seeds the database automatically on first startup.
 
@@ -159,66 +134,44 @@ The backend seeds the database automatically on first startup.
 
 ## Deployment
 
-### Backend → Render
-- Build command: `pip install -r requirements.txt`
-- Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
-- Environment variable:
-  - `DATABASE_URL` → PostgreSQL connection string
+### Backend → [Render](https://render.com)
 
-### Frontend → Vercel
-- Root directory: `frontend`
-- Build command: `npm run build`
-- Output directory: `dist`
-- Environment variable:
-  - `VITE_API_URL` → your Render backend URL
+- **Build command:** `pip install -r requirements.txt`
+- **Start command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`
+- **Environment variable:** `DATABASE_URL` → PostgreSQL connection string from Render
+
+### Frontend → [Vercel](https://vercel.com)
+
+- **Root directory:** `frontend`
+- **Build command:** `npm run build` / **Output directory:** `dist`
+- **Environment variable:** `VITE_API_URL` → your Render backend URL
 
 ---
 
 ## How the Contradiction Engine Works
 
-Each suspect has:
-- A declared alibi (time + location)
-
-Each clue contains:
-- Verified time
-- Verified location
-- Evidence metadata
-
-The `GameLogicService` cross-references these values server-side:
+Each suspect has a declared alibi with a time and location. Each clue has a verified time and location derived from physical evidence. `GameLogicService` in `game_logic.py` cross-references these:
 
 ```
 Blackwell declares: Reform Club until midnight
 Club register shows: departed at 21:15
-→ Contradiction flagged (severity: HIGH)
+→ contradiction flagged — severity: HIGH
 ```
 
-The frontend never receives the `guilty` boolean.
-
-The player must deduce the truth through evidence and logical reasoning.
+This logic runs server-side and is exposed via `/api/v1/cases/{id}/contradictions`. The frontend never receives the `guilty` boolean — the player must reach the conclusion through evidence alone.
 
 ---
 
-## Key Engineering Decisions
+## Deployment URLs
 
-- Separation between internal domain models and public API schemas
-- No exposure of sensitive fields
-- Modular service layer for rule evaluation
-- Database abstraction via repositories
-- Dynamic procedural audio generation instead of static assets
-- Sequential progression logic enforced client-side
-
----
-
-## Future Improvements
-
-- Unit tests for contradiction engine (pytest)
-- Docker support for full environment replication
-- CI/CD pipeline
-- Persistent user accounts
-- Additional historical cases
+| Service | URL |
+|---------|-----|
+| Frontend | https://sherlock-deduction-engine.vercel.app |
+| Backend API | https://sherlock-api.onrender.com |
+| API Docs | https://sherlock-api.onrender.com/docs |
 
 ---
 
 <div align="center">
-<sub>Built with FastAPI, React, SQLAlchemy, and the Web Audio API.</sub>
+  <sub>Built with FastAPI, React, and the Web Audio API · No external audio files · No UI component libraries</sub>
 </div>
