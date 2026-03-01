@@ -59,34 +59,41 @@ Cases unlock sequentially — the next case becomes available only after solving
 ---
 
 ## Project Structure
-```
+
+```text
 sherlock/
 ├── backend/
-│   ├── main.py                      ← FastAPI app + CORS + lifespan startup
+│   ├── main.py
 │   ├── requirements.txt
 │   └── app/
 │       ├── core/
-│       │   ├── config.py            ← Pydantic settings + env vars
-│       │   └── database.py          ← Engine setup + seed data
-│       ├── models/models.py         ← Case, Suspect, Clue, GameSession
-│       ├── schemas/schemas.py       ← Public vs internal Pydantic schemas
-│       ├── services/game_logic.py   ← Contradiction engine + accusation eval
-│       ├── repositories/            ← Data access layer
-│       └── api/routes.py            ← All endpoints
+│       │   ├── config.py
+│       │   └── database.py
+│       ├── models/
+│       │   └── models.py
+│       ├── schemas/
+│       │   └── schemas.py
+│       ├── services/
+│       │   └── game_logic.py
+│       ├── repositories/
+│       └── api/
+│           └── routes.py
 │
 └── frontend/
     └── src/
-        ├── App.jsx                  ← Client-side router
-        ├── data/cases.js            ← Case data + unlock logic
-        ├── hooks/useSoundManager.js ← Web Audio engine
-        ├── services/api.js          ← Fetch wrapper
+        ├── App.jsx
+        ├── data/
+        │   └── cases.js
+        ├── hooks/
+        │   └── useSoundManager.js
+        ├── services/
+        │   └── api.js
         └── pages/
-            ├── HomePage.jsx         ← Cinematic landing screen
-            ├── CasesPage.jsx        ← Case selection with lock states
-            ├── GamePage.jsx         ← Investigation interface
-            └── ResultPage.jsx       ← Resolution screen
+            ├── HomePage.jsx
+            ├── CasesPage.jsx
+            ├── GamePage.jsx
+            └── ResultPage.jsx
 ```
-
 ---
 
 ## API Reference
