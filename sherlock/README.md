@@ -59,7 +59,6 @@ Cases unlock sequentially — the next case becomes available only after solving
 ---
 
 ## Project Structure
-
 ```
 sherlock/
 ├── backend/
