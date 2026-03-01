@@ -1,138 +1,158 @@
+<div align="center">
+
 # 🎩 Sherlock Deduction Engine
 
-> Victorian crime investigation game. Full-stack web application.
-> Backend: FastAPI · Frontend: React + Vite · Deploy: Render + Vercel
+**A Victorian crime investigation game built as a full-stack web application.**
+
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square&logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-red?style=flat-square)
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=flat-square&logo=vite&logoColor=white)
+
+*London, 1888. Three cases. One killer. No second chances.*
+
+</div>
 
 ---
 
-## 📁 Project Structure
+## What is this?
+
+A browser-based deduction game set in Victorian London. The player investigates crime scenes, examines physical evidence, interrogates suspects, and makes a formal accusation — knowing that a wrong choice closes the case permanently.
+
+The core of the project is a **rule-based contradiction engine**: the backend evaluates each suspect's declared alibi against physical evidence and testimony, detecting logical inconsistencies that guide the player toward the truth. The guilty field is never exposed to the client.
+
+---
+
+## Cases
+
+| # | Title | Setting | Suspects | Difficulty |
+|---|-------|---------|----------|------------|
+| 1 | **Sombras en Whitechapel** | Whitechapel, 1888 | 4 | Moderate |
+| 2 | **La Bestia de Mayfair** | Mayfair, 1889 | 5 | Hard |
+| 3 | **El Veneno del Támesis** | Southwark, 1889 | 5 | Expert |
+
+Cases unlock sequentially — the next case becomes available only after solving the current one. Progress is persisted in `localStorage`.
+
+---
+
+## Tech Stack
+
+**Backend**
+- FastAPI with clean architecture (models → repositories → services → routes)
+- SQLAlchemy ORM — SQLite locally, PostgreSQL in production
+- Pydantic schemas with separate public/internal models (the `guilty` flag is never serialized to the client)
+- Alembic for database migrations
+
+**Frontend**
+- React 18 + Vite
+- Zero UI libraries — all styles written from scratch with CSS-in-JS
+- Web Audio API for procedurally generated Victorian ambient music: synthesized strings, piano, cello, rain, wind, and Westminster bell patterns — no audio files, no external dependencies
+- Music theme changes dynamically based on game state (interrogation triggers tension mode, win triggers resolution mode)
+
+---
+
+## Project Structure
 
 ```
 sherlock/
-├── backend/                    ← FastAPI API
-│   ├── main.py                 ← App entry point + CORS + lifespan
+├── backend/
+│   ├── main.py                      ← FastAPI app + CORS + lifespan startup
 │   ├── requirements.txt
 │   └── app/
 │       ├── core/
-│       │   ├── config.py       ← Settings (env vars, CORS origins)
-│       │   └── database.py     ← SQLAlchemy engine + seed data
-│       ├── models/
-│       │   └── models.py       ← Case, Suspect, Clue, GameSession
-│       ├── schemas/
-│       │   └── schemas.py      ← Pydantic schemas (request/response)
-│       ├── services/
-│       │   └── game_logic.py   ← Contradiction engine + accusation eval
-│       ├── repositories/
-│       │   └── repositories.py ← Data access layer
-│       └── api/
-│           └── routes.py       ← All API endpoints
+│       │   ├── config.py            ← Pydantic settings + env vars
+│       │   └── database.py          ← Engine setup + seed data
+│       ├── models/models.py         ← Case, Suspect, Clue, GameSession
+│       ├── schemas/schemas.py       ← Public vs internal Pydantic schemas
+│       ├── services/game_logic.py   ← Contradiction engine + accusation eval
+│       ├── repositories/            ← Data access layer
+│       └── api/routes.py            ← All endpoints
 │
-└── frontend/                   ← React + Vite
-    ├── index.html
-    ├── package.json
-    ├── vite.config.js
+└── frontend/
     └── src/
-        ├── main.jsx            ← React entry point
-        ├── App.jsx             ← Page router
-        ├── data/
-        │   └── cases.js        ← Local case data (used while offline)
-        ├── hooks/
-        │   └── useSoundManager.js  ← Web Audio API: ambient + SFX
-        ├── services/
-        │   └── api.js          ← Fetch wrapper for FastAPI
+        ├── App.jsx                  ← Client-side router
+        ├── data/cases.js            ← Case data + unlock logic
+        ├── hooks/useSoundManager.js ← Web Audio engine
+        ├── services/api.js          ← Fetch wrapper
         └── pages/
-            ├── HomePage.jsx    ← Landing screen with cinematic intro
-            ├── CasesPage.jsx   ← Case selection grid
-            ├── GamePage.jsx    ← Main investigation interface
-            └── ResultPage.jsx  ← Win/lose reveal screen
+            ├── HomePage.jsx         ← Cinematic landing screen
+            ├── CasesPage.jsx        ← Case selection with lock states
+            ├── GamePage.jsx         ← Investigation interface
+            └── ResultPage.jsx       ← Resolution screen
 ```
 
 ---
 
-## 🚀 Local Development
+## API Reference
 
-### Backend
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/v1/cases` | List all cases |
+| `GET` | `/api/v1/cases/{id}` | Full case detail (no guilty field) |
+| `GET` | `/api/v1/cases/{id}/contradictions` | Contradiction engine output |
+| `POST` | `/api/v1/sessions` | Start a new game session |
+| `GET` | `/api/v1/sessions/{id}` | Current session state |
+| `POST` | `/api/v1/sessions/{id}/clues/{clue_id}` | Mark clue as examined |
+| `POST` | `/api/v1/sessions/{id}/suspects/{suspect_id}` | Mark suspect as interviewed |
+| `POST` | `/api/v1/sessions/{id}/accuse` | Submit accusation → returns win/lose |
 
+Interactive docs available at `/docs` when running locally.
+
+---
+
+## Running locally
+
+**Backend**
 ```bash
 cd backend
+python -m venv venv
+venv\Scripts\activate       # Windows
 pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
+uvicorn main:app --reload
 ```
+→ API running at `http://localhost:8000`
 
-API docs: http://localhost:8000/docs
-
-### Frontend
-
+**Frontend**
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+→ App running at `http://localhost:5173`
 
-App: http://localhost:5173
-
----
-
-## 🔌 API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/cases` | List all cases |
-| GET | `/api/v1/cases/{id}` | Get full case detail |
-| GET | `/api/v1/cases/{id}/contradictions` | Contradiction engine output |
-| POST | `/api/v1/sessions` | Start new game session |
-| GET | `/api/v1/sessions/{id}` | Get session state |
-| POST | `/api/v1/sessions/{id}/clues/{clue_id}` | Mark clue as examined |
-| POST | `/api/v1/sessions/{id}/suspects/{suspect_id}` | Mark suspect as interviewed |
-| POST | `/api/v1/sessions/{id}/accuse` | Make formal accusation |
+The backend seeds the database automatically on first startup.
 
 ---
 
-## 🧠 Architecture Highlights (CV-ready)
+## Deployment
 
-- **Clean Architecture**: models → repositories → services → routes
-- **Rule-Based Contradiction Engine**: `game_logic.py` detects inconsistencies between suspect alibis and physical evidence
-- **Entity Relational Model**: Case → Suspects + Clues, Sessions track player state
-- **Security**: guilty field never exposed to frontend via public schemas
-- **Dual storage**: SQLite locally, PostgreSQL on Render
-- **Web Audio API**: procedurally generated Victorian ambient sound (no external files)
+**Backend → [Render](https://render.com)**
+- Build: `pip install -r requirements.txt`
+- Start: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+- Add env var: `DATABASE_URL` → PostgreSQL connection string from Render
 
----
-
-## ☁️ Deployment
-
-### Backend → Render
-
-1. Push to GitHub
-2. New Web Service on Render
-3. Build command: `pip install -r requirements.txt`
-4. Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
-5. Add env var: `DATABASE_URL` = your PostgreSQL connection string
-
-### Frontend → Vercel
-
-1. Push to GitHub
-2. Import project on Vercel
-3. Root directory: `frontend`
-4. Build: `npm run build`, Output: `dist`
-5. Add env var: `VITE_API_URL` = your Render backend URL
+**Frontend → [Vercel](https://vercel.com)**
+- Root directory: `frontend`
+- Build: `npm run build` / Output: `dist`
+- Add env var: `VITE_API_URL` → your Render backend URL
 
 ---
 
-## 🎮 Cases
+## How the contradiction engine works
 
-| # | Title | Suspects | Clues | Difficulty |
-|---|-------|----------|-------|------------|
-| 1 | Sombras en Whitechapel | 4 | 10 | MODERADO |
-| 2 | La Bestia de Mayfair | — | — | DIFÍCIL (próximo) |
+Each suspect has a declared alibi with a time and location. Each clue has a verified time and location derived from physical evidence. The `GameLogicService` in `game_logic.py` cross-references these:
+
+```
+Blackwell declares: Reform Club until midnight
+Club register shows: departed at 21:15
+→ contradiction flagged, severity: HIGH
+```
+
+This logic runs server-side and is exposed via `/api/v1/cases/{id}/contradictions`. The frontend never receives the `guilty` boolean — the player has to reach the conclusion through evidence alone.
 
 ---
 
-## 📄 CV Description
-
-> **Sherlock Deduction Engine** — Full Stack Web Application  
-> Designed and implemented a RESTful API with FastAPI following Clean Architecture principles.  
-> Modeled a rule-based deduction system with relational entities (cases, suspects, clues, sessions).  
-> Built a contradiction detection engine to evaluate suspect alibis against physical evidence.  
-> Developed an immersive Victorian-themed React frontend with procedural Web Audio ambient sound.  
-> Deployed backend on Render (PostgreSQL) and frontend on Vercel.
+<div align="center">
+<sub>Built with FastAPI, React, and the Web Audio API · No external audio files · No UI component libraries</sub>
+</div>
