@@ -12,6 +12,14 @@
 
 *London, 1888. Three cases. One killer. No second chances.*
 
+<div align="center">
+
+# 🎩 Sherlock Deduction Engine
+
+**[▶ Jugar ahora](https://sherlock-deduction-engine.vercel.app)** · **[API Docs](https://sherlock-api.onrender.com/docs)**
+
+![FastAPI]...
+
 </div>
 
 ---
@@ -156,3 +164,11 @@ This logic runs server-side and is exposed via `/api/v1/cases/{id}/contradiction
 <div align="center">
 <sub>Built with FastAPI, React, and the Web Audio API · No external audio files · No UI component libraries</sub>
 </div>
+
+## Deployment
+
+| Service | URL |
+|---------|-----|
+| Frontend | https://sherlock-deduction-engine.vercel.app |
+| Backend API | https://sherlock-api.onrender.com |
+| API Docs | https://sherlock-api.onrender.com/docs |
