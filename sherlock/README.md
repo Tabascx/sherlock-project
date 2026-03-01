@@ -18,8 +18,6 @@
 
 **[▶ Jugar ahora](https://sherlock-deduction-engine.vercel.app)** · **[API Docs](https://sherlock-api.onrender.com/docs)**
 
-![FastAPI]...
-
 </div>
 
 ---
